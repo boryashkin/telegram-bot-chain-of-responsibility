@@ -15,48 +15,39 @@ func (r ChatIDHolder) IsHandled() bool {
 }
 
 type CallbackQueryMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type UpdateMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type InlineQueryMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type ChannelPostMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type ChosenInlineResultMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type EditedChannelPostMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type EditedMessageMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type PreCheckoutQueryMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 type ShippingQueryMessageHandler struct {
-	BaseHandler
-	next MessageHandler
+	next *MessageHandler
 }
 
 func (h *CallbackQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -80,11 +71,14 @@ func (h *CallbackQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *CallbackQueryMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *UpdateMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -104,11 +98,14 @@ func (h *UpdateMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *UpdateMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *InlineQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -124,11 +121,14 @@ func (h *InlineQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *InlineQueryMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *ChannelPostMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -148,11 +148,14 @@ func (h *ChannelPostMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *ChannelPostMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *ChosenInlineResultMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -168,11 +171,14 @@ func (h *ChosenInlineResultMessageHandler) Handle(wrapper MessageWrapper) Result
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *ChosenInlineResultMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *EditedChannelPostMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -192,18 +198,21 @@ func (h *EditedChannelPostMessageHandler) Handle(wrapper MessageWrapper) Result 
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *EditedChannelPostMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *EditedMessageMessageHandler) Handle(wrapper MessageWrapper) Result {
 	if wrapper.Update.EditedMessage != nil {
 		var chatID *int64
 		if wrapper.Update.EditedMessage.Chat != nil {
-			chatID = &wrapper.Update.EditedChannelPost.Chat.ID
+			chatID = &wrapper.Update.EditedMessage.Chat.ID
 		}
 		return ChatIDHolder{
 			true,
@@ -216,11 +225,14 @@ func (h *EditedMessageMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *EditedMessageMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *PreCheckoutQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -236,11 +248,14 @@ func (h *PreCheckoutQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
+}
+func (h *PreCheckoutQueryMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
 func (h *ShippingQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
@@ -256,45 +271,73 @@ func (h *ShippingQueryMessageHandler) Handle(wrapper MessageWrapper) Result {
 		}
 	}
 
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
+	if h.next != nil {
+		return (*h.next).Handle(wrapper)
 	}
 
 	return BaseResult{handled: false}
 }
-
-func NewCallbackQueryMessageHandler(handler BaseHandler, nextHandler MessageHandler) CallbackQueryMessageHandler {
-	return CallbackQueryMessageHandler{handler, nextHandler}
+func (h *ShippingQueryMessageHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
 
-func NewUpdateMessageHandler(handler BaseHandler, nextHandler MessageHandler) UpdateMessageHandler {
-	return UpdateMessageHandler{handler, nextHandler}
+func NewCallbackQueryMessageHandler() CallbackQueryMessageHandler {
+	return CallbackQueryMessageHandler{}
 }
 
-func NewInlineQueryMessageHandler(handler BaseHandler, nextHandler MessageHandler) InlineQueryMessageHandler {
-	return InlineQueryMessageHandler{handler, nextHandler}
+func NewUpdateMessageHandler() UpdateMessageHandler {
+	return UpdateMessageHandler{}
 }
 
-func NewChannelPostMessageHandler(handler BaseHandler, nextHandler MessageHandler) ChannelPostMessageHandler {
-	return ChannelPostMessageHandler{handler, nextHandler}
+func NewInlineQueryMessageHandler() InlineQueryMessageHandler {
+	return InlineQueryMessageHandler{}
 }
 
-func NewChosenInlineResultMessageHandler(handler BaseHandler, nextHandler MessageHandler) ChosenInlineResultMessageHandler {
-	return ChosenInlineResultMessageHandler{handler, nextHandler}
+func NewChannelPostMessageHandler() ChannelPostMessageHandler {
+	return ChannelPostMessageHandler{}
 }
 
-func NewEditedChannelPostMessageHandler(handler BaseHandler, nextHandler MessageHandler) EditedChannelPostMessageHandler {
-	return EditedChannelPostMessageHandler{handler, nextHandler}
+func NewChosenInlineResultMessageHandler() ChosenInlineResultMessageHandler {
+	return ChosenInlineResultMessageHandler{}
 }
 
-func NewEditedMessageMessageHandler(handler BaseHandler, nextHandler MessageHandler) EditedMessageMessageHandler {
-	return EditedMessageMessageHandler{handler, nextHandler}
+func NewEditedChannelPostMessageHandler() EditedChannelPostMessageHandler {
+	return EditedChannelPostMessageHandler{}
 }
 
-func NewPreCheckoutQueryMessageHandler(handler BaseHandler, nextHandler MessageHandler) PreCheckoutQueryMessageHandler {
-	return PreCheckoutQueryMessageHandler{handler, nextHandler}
+func NewEditedMessageMessageHandler() EditedMessageMessageHandler {
+	return EditedMessageMessageHandler{}
 }
 
-func NewShippingQueryMessageHandler(handler BaseHandler, nextHandler MessageHandler) ShippingQueryMessageHandler {
-	return ShippingQueryMessageHandler{handler, nextHandler}
+func NewPreCheckoutQueryMessageHandler() PreCheckoutQueryMessageHandler {
+	return PreCheckoutQueryMessageHandler{}
+}
+
+func NewShippingQueryMessageHandler() ShippingQueryMessageHandler {
+	return ShippingQueryMessageHandler{}
+}
+
+func NewFullChainMessageHandler() MessageHandler {
+	base := NewEmptyHandler()
+
+	cqm := NewCallbackQueryMessageHandler()
+	umm := NewUpdateMessageHandler()
+	iqm := NewInlineQueryMessageHandler()
+	cpm := NewChannelPostMessageHandler()
+	cir := NewChosenInlineResultMessageHandler()
+	ecp := NewEditedChannelPostMessageHandler()
+	emm := NewEditedMessageMessageHandler()
+	pcq := NewPreCheckoutQueryMessageHandler()
+	sqm := NewShippingQueryMessageHandler()
+
+	cqm.SetNext(&umm)
+	umm.SetNext(&iqm)
+	iqm.SetNext(&cpm)
+	cpm.SetNext(&cir)
+	cir.SetNext(&ecp)
+	ecp.SetNext(&emm)
+	pcq.SetNext(&sqm)
+	sqm.SetNext(&base)
+
+	return &cqm
 }

@@ -6,33 +6,35 @@ type MessageWrapper struct {
 	Update tgbotapi.Update
 }
 
+type Result interface {
+	IsHandled() bool
+}
+
+type BaseResult struct {
+	handled bool
+}
+
+func (r BaseResult) IsHandled() bool {
+	return r.handled
+}
+
 type MessageHandler interface {
 	SetNext(MessageHandler)
-	GetNext() MessageHandler
 	Handle(wrapper MessageWrapper) Result
 }
 
-type BaseHandler struct {
-	next MessageHandler
+type EmptyHandler struct {
+	next *MessageHandler
 }
 
-func NewBaseHandler() BaseHandler {
-	return BaseHandler{}
+func NewEmptyHandler() EmptyHandler {
+	return EmptyHandler{}
 }
 
-func (h *BaseHandler) Handle(wrapper MessageWrapper) Result {
-
-	if h.GetNext() != nil {
-		return h.GetNext().Handle(wrapper)
-	}
-
+func (h *EmptyHandler) Handle(wrapper MessageWrapper) Result {
 	return BaseResult{handled: false}
 }
 
-func (h *BaseHandler) SetNext(MessageHandler) {
-	return
-}
-
-func (h *BaseHandler) GetNext() MessageHandler {
-	return h.next
+func (h *EmptyHandler) SetNext(handler MessageHandler) {
+	h.next = &handler
 }
